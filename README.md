@@ -4,7 +4,7 @@ The Btree is a complex data structure used in memory paging in operating systems
 
 This is a type of tree which in each node stores a number of objects according to their order. 
 
-In this C script, you will find a basic (not complete) handling of this order 3 structure.
+- In this C script, you will find a basic (incomplete) handling of this order 3 structure.
 
 
 ## Advantages
