@@ -62,7 +62,40 @@ struct Btree3* splitL(struct Btree3 *P, int res) {
     return newB;
 }
 
-int insert( struct Btree3 **P, struct Btree3 *ax, int data) {
+void rprHead(struct Btree3 **P, struct Btree3 *ax, int res, int i) {
+    if (i == 2) { 
+        ax->childs[2] = splitL(ax->childs[2], res);
+        *P = create(ax->keys[1]);
+        ax->keys[1] = 0;
+        (*P)->childs[0] = ax;
+        (*P)->childs[1] = ax->childs[2];
+        ax->childs[2] = NULL;
+    }
+    else if (i == 0) { 
+        ax->childs[0] = splitL(ax->childs[0], res);
+        *P = create(ax->keys[0]);
+        ax->keys[0] = ax->keys[1]; ax->keys[1] = 0;
+        (*P)->childs[1] = ax;
+        (*P)->childs[0] = ax->childs[0];
+        ax->childs[0] = ax->childs[1];
+        ax->childs[1] = ax->childs[2]; ax->childs[2] = NULL;
+    }
+    else { 
+        ax->childs[1] = splitL(ax->childs[1], res);
+        *P = ax->childs[1];
+        ax->childs[1] = (*P)->childs[0];
+        (*P)->childs[0] = ax;
+
+        (*P)->childs[2] = create(ax->keys[1]);
+        (*P)->childs[2]->childs[0] = (*P)->childs[1];
+        (*P)->childs[1] = (*P)->childs[2]; (*P)->childs[2] = NULL;
+        (*P)->childs[1]->childs[1] = ax->childs[2];
+
+        ax->keys[1] = 0; ax->childs[2] = NULL;
+    }
+}
+
+int insert( struct Btree3 **P, struct Btree3*ax, int data) {
     int res;
     if (!(*P)) {
         *P = create(data);
@@ -103,36 +136,7 @@ int insert( struct Btree3 **P, struct Btree3 *ax, int data) {
                 }
                 else {
                     if (ax == *P) {
-                        if (i == 2) { 
-                            ax->childs[2] = splitL(ax->childs[2], res);
-                            *P = create(ax->keys[1]);
-                            ax->keys[1] = 0;
-                            (*P)->childs[0] = ax;
-                            (*P)->childs[1] = ax->childs[2];
-                            ax->childs[2] = NULL;
-                        }
-                        else if (i == 0) { 
-                            ax->childs[0] = splitL(ax->childs[0], res);
-                            *P = create(ax->keys[0]);
-                            ax->keys[0] = ax->keys[1]; ax->keys[1] = 0;
-                            (*P)->childs[1] = ax;
-                            (*P)->childs[0] = ax->childs[0];
-                            ax->childs[0] = ax->childs[1];
-                            ax->childs[1] = ax->childs[2]; ax->childs[2] = NULL;
-                        }
-                        else { 
-                            ax->childs[1] = splitL(ax->childs[1], res);
-                            *P = ax->childs[1];
-                            ax->childs[1] = (*P)->childs[0];
-                            (*P)->childs[0] = ax;
-
-                            (*P)->childs[2] = create(ax->keys[1]);
-                            (*P)->childs[2]->childs[0] = (*P)->childs[1];
-                            (*P)->childs[1] = (*P)->childs[2]; (*P)->childs[2] = NULL;
-                            (*P)->childs[1]->childs[1] = ax->childs[2];
-
-                            ax->keys[1] = 0; ax->childs[2] = NULL;
-                        }
+                        rprHead(P,ax,res, i);
                     }//
                 }
             }
@@ -144,8 +148,9 @@ int insert( struct Btree3 **P, struct Btree3 *ax, int data) {
 void inorder(struct Btree3 *P) {
     if (P) {
         inorder(P->childs[0]);
-        printf("\n\t[%d][%d]\n" ,P->keys[0], P->keys[1]);
+        printf(" %d - ", P->keys[0]);
         inorder(P->childs[1]);
+        if (P->keys[1]) printf(" %d - ", P->keys[1]);
         inorder(P->childs[2]);
     }
 }
